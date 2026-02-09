@@ -23,7 +23,7 @@ pipeline {
       }
     }
 
-    stage('Deploy using Helm') {
+  stage('Deploy using Helm') {
   steps {
     sh """
       echo "Deploying custom image: sandipkhot96/custom-nginx:1.0"
