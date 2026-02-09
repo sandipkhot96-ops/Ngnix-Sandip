@@ -20,7 +20,7 @@ pipeline {
       steps {
         sh '''
           echo "Building image: ${IMAGE_NAME}:${IMAGE_TAG}"
-          docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ./build
+          docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
         '''
       }
     }
