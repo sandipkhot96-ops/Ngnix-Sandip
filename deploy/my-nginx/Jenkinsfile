@@ -1,0 +1,47 @@
+pipeline {
+  agent any
+
+  parameters {
+    string(
+      name: 'IMAGE_TAG',
+      defaultValue: '7',
+      description: 'Enter Docker image tag to deploy'
+    )
+  }
+
+  environment {
+    HELM_RELEASE = "new-nginx"
+    HELM_CHART   = "./deploy/my-nginx"
+  }
+
+  stages {
+
+    stage('Clone Repository') {
+      steps {
+        git branch: 'main',
+            url: 'https://github.com/sandipkhot96-ops/Ngnix-Sandip.git'
+      }
+    }
+
+    stage('Deploy using Helm') {
+      steps {
+        sh """
+          echo "Deploying image tag: ${params.IMAGE_TAG}"
+          helm upgrade --install ${HELM_RELEASE} ${HELM_CHART} \
+            --set image.tag=${params.IMAGE_TAG} -n jenkins
+        """
+      }
+    }
+
+    stage('Verify Deployment') {
+      steps {
+        sh '''
+           kubectl get pods -n jenkins
+           kubectl get svc -n jenkins
+          
+        '''
+      }
+    }
+
+  }
+}
