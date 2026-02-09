@@ -6,7 +6,7 @@ image:
   # This sets the pull policy for images.
   pullPolicy: sandipkhot96/custom-nginx
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "stable"
+  tag: "7"
 
 service:
   # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
