@@ -4,7 +4,7 @@ pipeline {
   parameters {
     string(
       name: 'IMAGE_TAG',
-      defaultValue: '7',
+      defaultValue: 'stable',
       description: 'Enter Docker image tag to deploy'
     )
   }
