@@ -27,10 +27,11 @@ pipeline {
   steps {
     sh """
       echo "Deploying custom image: sandipkhot96/custom-nginx:1.0"
-      helm upgrade --install ${HELM_RELEASE} ${HELM_CHART} \
-        --set image.repository=sandipkhot96/custom-nginx \
-        --set image.tag=1.0 \
-        -n jenkins --wait
+      helm upgrade --install new-nginx ./deploy/my-nginx \
+  --set image.repository=sandipkhot96/custom-nginx \
+  --set image.tag=1.0 \
+  -n jenkins --wait
+
     """
   }
 }
