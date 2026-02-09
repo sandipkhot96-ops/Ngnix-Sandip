@@ -3,7 +3,7 @@ replicaCount: 1
 
 # NGINX container image
 image:
-  repository: nginx
+  repository: sandipkhot96/custom-nginx
   tag: stable
   pullPolicy: IfNotPresent
 
