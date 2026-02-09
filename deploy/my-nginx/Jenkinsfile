@@ -24,14 +24,16 @@ pipeline {
     }
 
     stage('Deploy using Helm') {
-      steps {
-        sh """
-          echo "Deploying image tag: ${params.IMAGE_TAG}"
-          helm upgrade --install ${HELM_RELEASE} ${HELM_CHART} \
-            --set image.tag=${params.IMAGE_TAG} -n jenkins
-        """
-      }
-    }
+  steps {
+    sh """
+      echo "Deploying custom image: sandipkhot96/custom-nginx:1.0"
+      helm upgrade --install ${HELM_RELEASE} ${HELM_CHART} \
+        --set image.repository=sandipkhot96/custom-nginx \
+        --set image.tag=1.0 \
+        -n jenkins --wait
+    """
+  }
+}
 
     stage('Verify Deployment') {
       steps {
