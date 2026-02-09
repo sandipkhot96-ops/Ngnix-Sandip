@@ -4,14 +4,16 @@ pipeline {
   parameters {
     string(
       name: 'IMAGE_TAG',
-      defaultValue: 'stable',
-      description: 'Enter Docker image tag to deploy'
+      defaultValue: '',
+      description: 'Enter Docker image tag to deploy (generated from build job)'
     )
   }
 
   environment {
     HELM_RELEASE = "new-nginx"
     HELM_CHART   = "./deploy/my-nginx"
+    DOCKER_REPO  = "sandipkhot96"
+    NAMESPACE    = "jenkins"
   }
 
   stages {
@@ -23,28 +25,53 @@ pipeline {
       }
     }
 
-  stage('Deploy using Helm') {
-  steps {
-    sh """
-      echo "Deploying custom image: sandipkhot96/custom-nginx:1.0"
-      helm upgrade --install new-nginx ./deploy/my-nginx \
-  --set image.repository=sandipkhot96/custom-nginx \
-  --set image.tag=1.0 \
-  -n jenkins --wait
-
-    """
-  }
-}
-
-    stage('Verify Deployment') {
+    stage('Deploy using Helm') {
       steps {
-        sh '''
-           kubectl get pods -n jenkins
-           kubectl get svc -n jenkins
-          
-        '''
+        script {
+          // Use IMAGE_TAG passed from build job or parameter
+          def tag = params.IMAGE_TAG
+          if (tag == '') {
+            error("Please provide IMAGE_TAG parameter from build job")
+          }
+
+          sh """
+            echo "Deploying custom image: ${DOCKER_REPO}/custom-nginx:${tag}"
+
+            # Ensure Minikube Docker environment is active
+            eval \$(minikube docker-env)
+
+            # Ensure KUBECONFIG points to Minikube
+            export KUBECONFIG=$HOME/.kube/config
+
+            # Create namespace if it doesn't exist
+            kubectl get ns ${NAMESPACE} || kubectl create ns ${NAMESPACE}
+
+            # Deploy with Helm using the dynamic image tag
+            helm upgrade --install ${HELM_RELEASE} ${HELM_CHART} \
+              --set image.repository=${DOCKER_REPO}/custom-nginx \
+              --set image.tag=${tag} \
+              -n ${NAMESPACE} --wait
+          """
+        }
       }
     }
 
+    stage('Verify Deployment') {
+      steps {
+        sh """
+          kubectl get pods -n ${NAMESPACE}
+          kubectl get svc -n ${NAMESPACE}
+        """
+      }
+    }
+  }
+
+  post {
+    success {
+      echo "✅ Helm deployment completed successfully!"
+    }
+    failure {
+      echo "❌ Helm deployment failed!"
+    }
   }
 }
