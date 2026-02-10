@@ -4,7 +4,7 @@ replicaCount: 1
 # NGINX container image
 image:
   repository: sandipkhot96/custom-nginx
-  tag: stable
+  tag: ""
   pullPolicy: IfNotPresent
 
 # Kubernetes Service
