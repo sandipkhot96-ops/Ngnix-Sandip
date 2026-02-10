@@ -20,7 +20,15 @@ serviceAccount:
 
 # Disable Ingress (not needed for local ClusterIP access)
 ingress:
-  enabled: false
+  enabled: true
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: nginx.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
 
 # Disable Gateway API HTTPRoute
 httpRoute:
