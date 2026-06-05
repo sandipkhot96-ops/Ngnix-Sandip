@@ -1,0 +1,38 @@
+mkdir -p .github/workflows
+cat > .github/workflows/deploy.yml << 'EOF'
+name: Build and Deploy NGINX
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t sandipkhot96/nginx-sandip:gha-${{ github.run_number }} .
+
+      - name: Push to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker push sandipkhot96/nginx-sandip:gha-${{ github.run_number }}
+
+  deploy:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install new-nginx ./helm/nginx \
+            --namespace jenkins \
+            --set image.repository=sandipkhot96/nginx-sandip \
+            --set image.tag=gha-${{ github.run_number }}
