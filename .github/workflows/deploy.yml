@@ -35,7 +35,7 @@ jobs:
 
       - name: Deploy with Helm
         run: |
-          helm upgrade --install new-nginx ./helm/nginx \
+          helm upgrade --install new-nginx ./deploy/my-nginx \
             --namespace jenkins \
             --set image.repository=sandipkhot96/nginx-sandip \
             --set image.tag=gha-${{ github.run_number }}
